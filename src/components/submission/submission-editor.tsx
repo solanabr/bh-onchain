@@ -137,7 +137,7 @@ export function SubmissionEditor({ teamId, isLeader, editable, initial, initialI
     !!form.project_name.trim() &&
     !!form.description.trim() &&
     !!sanitizeUrl(form.pitch_url) &&
-    !!sanitizeUrl(form.demo_video_url) &&
+    !!sanitizeUrl(form.pitch_video_url) &&
     !!sanitizeUrl(form.github_url);
 
   return (
@@ -178,23 +178,13 @@ export function SubmissionEditor({ teamId, isLeader, editable, initial, initialI
             />
           </div>
           <div>
-            <Label htmlFor="pitch_video_url" hint="opcional">Pitch em vídeo (≤ 3 min)</Label>
+            <Label htmlFor="pitch_video_url">Vídeo de apresentação (demo) (≤ 3 min)*</Label>
             <Input
               id="pitch_video_url"
               type="url"
               placeholder="https://youtube.com/..."
               value={form.pitch_video_url}
               onChange={(e) => set("pitch_video_url", e.target.value)}
-            />
-          </div>
-          <div>
-            <Label htmlFor="demo_video_url">Demo do produto (≤ 3 min)*</Label>
-            <Input
-              id="demo_video_url"
-              type="url"
-              placeholder="https://youtube.com/..."
-              value={form.demo_video_url}
-              onChange={(e) => set("demo_video_url", e.target.value)}
             />
           </div>
           <div>
@@ -206,6 +196,18 @@ export function SubmissionEditor({ teamId, isLeader, editable, initial, initialI
               value={form.github_url}
               onChange={(e) => set("github_url", e.target.value)}
             />
+            <p className="mt-1.5 text-xs text-bh-muted">
+              Se o repositório for privado, adicione{" "}
+              <a
+                href="https://github.com/kauenet"
+                target="_blank"
+                rel="noreferrer"
+                className="font-medium text-bh-text underline-offset-2 hover:text-bh-violet hover:underline"
+              >
+                @kauenet
+              </a>{" "}
+              como colaborador para os juízes terem acesso.
+            </p>
           </div>
           <div>
             <Label htmlFor="twitter_url" hint="opcional">X / Twitter</Label>
@@ -230,7 +232,7 @@ export function SubmissionEditor({ teamId, isLeader, editable, initial, initialI
         </div>
 
         <div>
-          <Label hint="JPG / PNG · até 5 MB">Imagem de capa do projeto</Label>
+          <Label hint="JPG / PNG · 250 × 250 px · até 5 MB">Imagem de capa do projeto</Label>
           <ImageUpload
             teamId={teamId}
             currentPath={imagePath}

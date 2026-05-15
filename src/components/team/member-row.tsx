@@ -10,10 +10,19 @@ type Props = {
   fullName: string | null;
   isLeader: boolean;
   status: "pending" | "accepted" | "removed";
+  hasAccount: boolean;
   canRemove: boolean;
 };
 
-export function MemberRow({ memberId, email, fullName, isLeader, status, canRemove }: Props) {
+export function MemberRow({
+  memberId,
+  email,
+  fullName,
+  isLeader,
+  status,
+  hasAccount,
+  canRemove,
+}: Props) {
   const router = useRouter();
   const [removing, setRemoving] = useState(false);
 
@@ -45,7 +54,11 @@ export function MemberRow({ memberId, email, fullName, isLeader, status, canRemo
         <p className="text-xs text-bh-muted">{email}</p>
       </div>
       <div className="flex items-center gap-3">
-        {status === "pending" && <Badge tone="neutral">Pendente</Badge>}
+        {status === "pending" && (
+          <Badge tone={hasAccount ? "neutral" : "yellow"}>
+            {hasAccount ? "Pendente" : "Sem conta"}
+          </Badge>
+        )}
         {canRemove && (
           <button
             type="button"

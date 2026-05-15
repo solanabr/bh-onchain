@@ -112,54 +112,56 @@ export function SubmissionCard({ row }: { row: Row }) {
       <button
         type="button"
         onClick={open}
-        className="group block w-full overflow-hidden rounded-2xl border border-bh-border bg-bh-surface/80 text-left backdrop-blur-sm transition hover:border-bh-violet/60 hover:bg-bh-surface focus:outline-none focus:ring-2 focus:ring-bh-violet/60"
+        className="group block w-full rounded-2xl border border-bh-border bg-bh-surface/80 text-left backdrop-blur-sm transition hover:border-bh-violet/60 hover:bg-bh-surface focus:outline-none focus:ring-2 focus:ring-bh-violet/60"
       >
-        <div className="relative h-32 w-full bg-bh-surface-2">
-          {imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={imageUrl}
-              alt={row.project_name ?? row.team_name}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-xs text-bh-muted">
-              Sem imagem
-            </div>
-          )}
-          <div className="absolute right-3 top-3">
-            <Badge tone={row.status === "submitted" ? "emerald" : "neutral"}>
-              {row.status === "submitted" ? "Submetido" : "Rascunho"}
-            </Badge>
+        <div className="flex gap-4 p-5">
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border border-bh-border bg-bh-surface-2">
+            {imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={imageUrl}
+                alt={row.project_name ?? row.team_name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-[10px] text-bh-muted">
+                sem imagem
+              </div>
+            )}
           </div>
-          {avgGrade !== null && (
-            <div className="absolute left-3 top-3">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-bh-violet px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white shadow-lg ring-1 ring-white/20">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden="true"
-                  className="h-3 w-3"
-                >
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z" />
-                </svg>
-                Média {avgGrade.toFixed(1)} ({gradedRatings.length})
-              </span>
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone={row.status === "submitted" ? "emerald" : "neutral"}>
+                {row.status === "submitted" ? "Submetido" : "Rascunho"}
+              </Badge>
+              {avgGrade !== null && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-bh-violet px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white ring-1 ring-white/20">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                    className="h-2.5 w-2.5"
+                  >
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z" />
+                  </svg>
+                  {avgGrade.toFixed(1)} ({gradedRatings.length})
+                </span>
+              )}
             </div>
-          )}
-        </div>
-        <div className="space-y-2 p-5">
-          <p className="text-xs uppercase tracking-wider text-bh-muted">{row.team_name}</p>
-          <h3 className="font-heading text-lg font-semibold text-bh-text transition-colors group-hover:text-bh-violet">
-            {row.project_name ?? <span className="text-bh-muted">— sem nome —</span>}
-          </h3>
-          {row.description && (
-            <p className="line-clamp-2 text-sm text-bh-muted">{row.description}</p>
-          )}
-          <p className="pt-1 text-xs text-bh-muted">
-            {memberCountLabel}
-            {submittedAtShort && ` · ${submittedAtShort}`}
-          </p>
+            <p className="truncate text-[11px] uppercase tracking-wider text-bh-muted">
+              {row.team_name}
+            </p>
+            <h3 className="font-heading text-base font-semibold leading-tight text-bh-text transition-colors group-hover:text-bh-violet">
+              {row.project_name ?? <span className="text-bh-muted">— sem nome —</span>}
+            </h3>
+            {row.description && (
+              <p className="line-clamp-2 text-sm text-bh-muted">{row.description}</p>
+            )}
+            <p className="pt-0.5 text-[11px] text-bh-muted">
+              {memberCountLabel}
+              {submittedAtShort && ` · ${submittedAtShort}`}
+            </p>
+          </div>
         </div>
       </button>
 

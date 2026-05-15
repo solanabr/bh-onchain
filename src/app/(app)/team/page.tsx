@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { InviteForm } from "@/components/team/invite-form";
+import { AddMemberForm } from "@/components/team/add-member-form";
 import { MemberRow } from "@/components/team/member-row";
 import { getActiveHackathon } from "@/lib/hackathon";
 import { getCurrentUserTeam } from "@/lib/team";
@@ -78,6 +78,7 @@ export default async function TeamPage() {
                 fullName={m.user?.full_name ?? null}
                 isLeader={m.is_leader}
                 status={m.status}
+                hasAccount={!!m.user}
                 canRemove={isLeader && !m.is_leader && !team.locked}
               />
             ))}
@@ -86,12 +87,13 @@ export default async function TeamPage() {
 
         {canInvite && (
           <Card className="p-7">
-            <h2 className="font-heading text-lg font-semibold">Convidar integrante</h2>
+            <h2 className="font-heading text-lg font-semibold">Adicionar integrante</h2>
             <p className="mt-1 text-sm text-bh-muted">
-              Envia um convite por e-mail. A pessoa precisa aceitar e fazer login para entrar no time.
+              Digite o e-mail. Se a pessoa já tiver conta, entra direto no time.
+              Senão, vai aparecer automaticamente quando ela se cadastrar com este e-mail.
             </p>
             <div className="mt-5">
-              <InviteForm teamId={team.id} teamName={team.name} />
+              <AddMemberForm teamId={team.id} />
             </div>
           </Card>
         )}
