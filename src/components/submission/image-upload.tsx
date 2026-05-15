@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 
@@ -17,6 +17,7 @@ const ALLOWED = ["image/jpeg", "image/png", "image/webp"];
 
 export function ImageUpload({ teamId, currentPath, currentUrl, disabled, onUploaded }: Props) {
   const supabase = createClient();
+  const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentUrl);
@@ -66,25 +67,26 @@ export function ImageUpload({ teamId, currentPath, currentUrl, disabled, onUploa
           className="h-40 w-40 rounded-xl border border-bh-border object-cover"
         />
       )}
-      <label
-        className={`flex items-center gap-3 ${
-          disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-        }`}
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        disabled={disabled || uploading}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) void handleFile(file);
+          e.target.value = "";
+        }}
+        className="hidden"
+      />
+      <Button
+        type="button"
+        variant="secondary"
+        disabled={disabled || uploading}
+        onClick={() => inputRef.current?.click()}
       >
-        <input
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          disabled={disabled || uploading}
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) void handleFile(file);
-          }}
-          className="hidden"
-        />
-        <Button type="button" variant="secondary" disabled={disabled || uploading}>
-          {uploading ? "Enviando..." : previewUrl ? "Trocar imagem" : "Selecionar imagem"}
-        </Button>
-      </label>
+        {uploading ? "Enviando..." : previewUrl ? "Trocar imagem" : "Selecionar imagem"}
+      </Button>
       {error && <p className="text-sm text-red-300">{error}</p>}
     </div>
   );

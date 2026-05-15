@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { sendSubmissionConfirmation } from "@/lib/email";
 
 const RPC_ERRORS: Record<string, { status: number; message: string }> = {
   not_authenticated: { status: 401, message: "Sessão expirada." },
@@ -37,42 +36,6 @@ export async function POST(request: NextRequest) {
       { error: mapped?.message ?? "Não foi possível submeter.", code: rpcError.message },
       { status: mapped?.status ?? 500 },
     );
-  }
-
-  // Fire-and-forget confirmation emails. Failure here doesn't roll back the submission.
-  try {
-    const { data: details } = await supabase
-      .from("teams")
-      .select("name, submissions(project_name), team_members(invited_email, status, user_id, users(email))")
-      .eq("id", body.teamId)
-      .maybeSingle();
-
-    if (details) {
-      type SubRow = { project_name: string | null };
-      type MemberRow = { status: string; invited_email: string; users: { email: string } | { email: string }[] | null };
-      const sub = Array.isArray(details.submissions) ? details.submissions[0] : (details.submissions as SubRow | null);
-      const members = (details.team_members ?? []) as MemberRow[];
-
-      const recipients = new Set<string>();
-      for (const m of members) {
-        if (m.status !== "accepted") continue;
-        const u = Array.isArray(m.users) ? m.users[0] : m.users;
-        const email = u?.email ?? m.invited_email;
-        if (email) recipients.add(email);
-      }
-
-      await Promise.allSettled(
-        Array.from(recipients).map((to) =>
-          sendSubmissionConfirmation({
-            to,
-            teamName: details.name,
-            projectName: sub?.project_name ?? "Projeto sem nome",
-          }),
-        ),
-      );
-    }
-  } catch (err) {
-    console.warn("[/api/submit] confirmation emails failed", err);
   }
 
   return NextResponse.json({ ok: true });
