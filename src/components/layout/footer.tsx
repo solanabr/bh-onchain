@@ -1,26 +1,70 @@
+import Image from "next/image";
+
 export function Footer() {
   return (
     <footer className="border-t border-bh-border/50 bg-bh-bg/85">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/brand/bh/symbol.png"
-            alt=""
-            className="h-7 w-8 object-contain"
-          />
-          <div>
-            <p className="font-heading text-sm font-semibold text-bh-text">
-              BH Onchain
+      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid gap-10 sm:grid-cols-3 sm:gap-12">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/brand/bh/symbol.png"
+                alt=""
+                className="h-7 w-8 object-contain"
+              />
+              <p className="font-heading text-sm font-semibold text-bh-text">
+                BH Onchain
+              </p>
+            </div>
+            <p className="text-xs leading-relaxed text-bh-muted">
+              Hackathon BH Onchain — Trilha SuperteamBR.
+              <br />
+              13 a 17 de maio de 2026, Belo Horizonte.
             </p>
-            <p className="text-xs text-bh-muted">
-              © 2026 BH OnChain. Realizado por Vega Crypto.
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <p className="text-xs uppercase tracking-[0.18em] text-stbr-yellow">
+              Organização
             </p>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+              <Image
+                src="/brand/bh/wordmark.png"
+                alt="BH Onchain"
+                width={150}
+                height={60}
+                className="h-8 w-auto object-contain"
+              />
+              <span className="h-6 w-px bg-bh-border" aria-hidden="true" />
+              <Image
+                src="/brand/vega-lockup-wine.png"
+                alt="Vega Crypto"
+                width={170}
+                height={47}
+                className="h-7 w-auto object-contain brightness-0 invert"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <p className="text-xs uppercase tracking-[0.18em] text-stbr-yellow">
+              Em parceria com
+            </p>
+            <Image
+              src="/brand/stbr/logo/horizontal-fwhite.svg"
+              alt="Solana Superteam Brasil"
+              width={210}
+              height={48}
+              className="h-8 w-auto object-contain"
+            />
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center gap-3"></div>
+        <div className="mt-10 flex flex-col gap-4 border-t border-bh-border/50 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-bh-muted">
+            © 2026 BH Onchain. Realizado por Vega Crypto.
+          </p>
           <div className="flex items-center gap-2">
             <SocialLink href="https://x.com/BHonchain" label="BH Onchain no X">
               <path

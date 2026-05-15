@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +9,6 @@ import { GradientBackground } from "@/components/layout/background";
 import { Countdown } from "@/components/ui/countdown";
 import { getActiveHackathon } from "@/lib/hackathon";
 import { resolveAuthenticatedUserState } from "@/lib/user-state";
-import type { Hackathon } from "@/types/db";
 
 export const dynamic = "force-dynamic";
 
@@ -186,7 +184,7 @@ export default async function LandingPage() {
   const deadlineLabel = formatDeadline(deadlineIso);
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-bh-bg">
+    <main className="relative min-h-screen overflow-x-hidden bg-bh-bg">
       <div className="relative z-10">
         <Header
           isAuthenticated={!!authState}
@@ -194,23 +192,19 @@ export default async function LandingPage() {
           revealOnScroll
         />
 
-        <section
-          className="relative isolate overflow-hidden"
-          style={{ height: "100svh" }}
-        >
+        <section className="relative isolate min-h-[100svh] overflow-x-hidden lg:min-h-[100svh] lg:overflow-hidden">
           <GradientBackground />
-          <BrandTexture />
-          <div className="relative z-10 flex h-full items-center justify-center px-4 pb-24 pt-10 sm:px-6 lg:px-8 lg:pb-28 lg:pt-12">
+          <div className="relative z-10 px-4 pb-16 pt-24 sm:px-6 sm:pt-24 lg:flex lg:h-full lg:items-center lg:justify-center lg:px-8 lg:pb-28 lg:pt-40">
             <div className="mx-auto grid w-full max-w-6xl items-center gap-8 lg:grid-cols-[1.08fr_0.92fr]">
               <div>
                 <div>
-                  <h1 className="max-w-4xl font-heading text-5xl font-bold leading-[0.95] tracking-tight sm:text-6xl lg:text-6xl xl:text-7xl">
+                  <h1 className="max-w-4xl font-heading text-4xl font-bold leading-[0.95] tracking-tight min-[390px]:text-5xl sm:text-6xl lg:text-6xl xl:text-7xl">
                     Hackathon BH Onchain
                     <span className="block gradient-text">
                       Trilha SuperteamBR
                     </span>
                   </h1>
-                  <p className="mt-6 max-w-2xl text-lg leading-8 text-bh-muted lg:text-[1.15rem]">
+                  <p className="mt-6 max-w-2xl text-base leading-7 text-bh-muted sm:text-lg sm:leading-8 lg:text-[1.15rem]">
                     Uma trilha de cinco dias que conecta desenvolvedores,
                     designers e empreendedores ao ecossistema Solana, com
                     curadoria e premiação da SuperteamBR. A construção acontece
@@ -220,12 +214,12 @@ export default async function LandingPage() {
 
                 <div className="mt-7 flex flex-wrap gap-3">
                   <Link href={primaryHref}>
-                    <Button variant="primary" className="px-8 py-4 text-base">
+                    <Button variant="primary" className="px-7 py-4 text-base">
                       {primaryLabel}
                     </Button>
                   </Link>
                   <a href={lumaUrl} target="_blank" rel="noreferrer">
-                    <Button variant="secondary" className="px-8 py-4 text-base">
+                    <Button variant="secondary" className="px-7 py-4 text-base">
                       Inscrever-se no Luma
                     </Button>
                   </a>
@@ -268,9 +262,12 @@ export default async function LandingPage() {
             </div>
           </div>
 
-          <div className="absolute inset-x-0 bottom-0 z-20 border-y border-bh-border/40 bg-bh-bg/30 px-4 py-3 backdrop-blur-sm sm:px-6 lg:px-8">
+          <div className="absolute inset-x-0 bottom-0 z-20 hidden border-t border-bh-border/40 bg-bh-bg/30 px-8 py-3 backdrop-blur-sm lg:block">
             <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-10 gap-y-3">
-              <BrandLine label="Organização">
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                <p className="text-xs uppercase tracking-[0.18em] text-stbr-yellow">
+                  Organização
+                </p>
                 <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
                   <Image
                     src="/brand/bh/wordmark.png"
@@ -288,9 +285,12 @@ export default async function LandingPage() {
                     className="h-8 w-auto object-contain brightness-0 invert"
                   />
                 </div>
-              </BrandLine>
+              </div>
 
-              <BrandLine label="Em parceria com">
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                <p className="text-xs uppercase tracking-[0.18em] text-stbr-yellow">
+                  Em parceria com
+                </p>
                 <Image
                   src="/brand/stbr/logo/horizontal-fwhite.svg"
                   alt="Solana Superteam Brasil"
@@ -298,7 +298,7 @@ export default async function LandingPage() {
                   height={48}
                   className="h-8 w-auto object-contain"
                 />
-              </BrandLine>
+              </div>
             </div>
           </div>
         </section>
@@ -549,29 +549,6 @@ export default async function LandingPage() {
         <Footer />
       </div>
     </main>
-  );
-}
-
-function BrandTexture() {
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden"></div>
-  );
-}
-
-function BrandLine({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-      <p className="text-xs uppercase tracking-[0.18em] text-stbr-yellow">
-        {label}
-      </p>
-      <div>{children}</div>
-    </div>
   );
 }
 
