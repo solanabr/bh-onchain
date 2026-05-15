@@ -38,12 +38,11 @@ npm run dev                       # http://localhost:3000
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | User-scoped client key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only admin key (cron, invite issue) |
 | `NEXT_PUBLIC_APP_URL` | Canonical app URL used in invite emails |
-| `NEXT_PUBLIC_HACKATHON_LUMA_URL` | Luma event URL surfaced in the UI |
 | `RESEND_API_KEY` | Resend API key (email skipped if unset) |
 | `EMAIL_FROM` | `"BH Onchain <hackathon@bhonchain.com>"` |
 | `INVITE_TOKEN_SECRET` | HMAC key for invite links (`openssl rand -base64 48`) |
 | `CRON_SECRET` | Auth bearer for `/api/cron/lock-submissions` |
-| `ADMIN_EMAIL_ALLOWLIST` | Comma-separated admin emails (future admin dashboard) |
+| `ADMIN_EMAIL_ALLOWLIST` | Comma-separated admin emails (curator panel + rating writes) |
 | `ADMIN_USER_ID_ALLOWLIST` | Comma-separated admin user IDs |
 
 Without `RESEND_API_KEY`, invite/confirmation emails are logged to the console (useful for local dev).
@@ -52,9 +51,9 @@ Without `RESEND_API_KEY`, invite/confirmation emails are logged to the console (
 
 ### Route groups
 
-- `(public)/` — landing, auth pages, invite-acceptance magic-link landing.
-- `(app)/` — auth-gated: onboarding, dashboard, team, submission editor.
-- `api/` — invite send, member remove, cron lock, signout.
+- `(public)/` — landing, auth pages, legacy `/invite/[token]` magic-link landing.
+- `(app)/` — auth-gated: onboarding, dashboard, team, submission editor, `/admin` curator panel (env-gated).
+- `api/` — member remove, cron lock, signout, submit (legacy `/api/team/invite` removed in favor of the manual add-member server action).
 
 Middleware (`/middleware.ts`) gates auth: any non-public route without a session redirects to `/auth`. **Don't add auth checks in `(app)/layout.tsx`** — that path causes redirect loops (we hit this in the parent project too).
 
@@ -62,18 +61,24 @@ Middleware (`/middleware.ts`) gates auth: any non-public route without a session
 
 ```
 auth.users  ─trigger─>  users (mirror + profile data)
+                  └─>  auto-links matching team_members ghost rows
 hackathons (seeded with bh-onchain-2026)
 teams ─trigger─> submissions + team_members(leader)
-team_members  (pending until invitee clicks email link)
+team_members (user_id may be null for ghost rows added by manual email lookup)
+submission_ratings (one row per admin per submission)
 ```
 
-Three `SECURITY DEFINER` RPCs encapsulate cross-table mutations:
+Cross-table writes use two patterns:
 
+**SECURITY DEFINER RPCs** for member-facing flows:
 - `create_team_with_leader` — validates the caller isn't already on a team for the hackathon, then inserts the team. Triggers auto-create the submission row and add the leader as `accepted`.
-- `accept_team_invite` — atomically attaches the authenticated user to a pending invite, with the same "one team per hackathon" guard.
+- `accept_team_invite` — atomically attaches the authenticated user to a legacy token-based invite, with the same "one team per hackathon" guard.
 - `submit_team` — leader-only finalize: validates required fields, flips submission to `submitted`, locks the team.
+- `auto_lock_overdue` — runs from Vercel cron every 15 min to flip overdue draft submissions.
 
-A fourth (`auto_lock_overdue`) runs from Vercel cron every 15 min to flip overdue draft submissions.
+**Server actions + service-role client** for admin & team-leader writes that gate on env-allowlists:
+- `addMemberByEmail` (team leader) — manual member add. If the email is already registered the row goes in as `accepted` immediately; otherwise it sits as a ghost (`user_id is null`, `status='pending'`) that the auth trigger links on signup.
+- `upsertRating` / `deleteRating` (admin) — write to `submission_ratings`, which has RLS enabled with zero policies.
 
 ### Auth + onboarding
 
@@ -88,14 +93,17 @@ A fourth (`auto_lock_overdue`) runs from Vercel cron every 15 min to flip overdu
 ```
 no team             → /dashboard offers Criar time / Aguardar convite
    ↓ leader fills name
-team (1 member)     → leader can invite up to 3 others by email
-   ↓ invitee clicks email link → /invite/[token] → accept_team_invite RPC
+team (1 member)     → leader adds up to 3 others by email:
+                       · if the email is registered → instantly joined
+                       · if not → ghost row, auto-links on signup
 team (≤ 4 members)  → all members can edit the submission
    ↓ leader clicks Submeter projeto  (submit_team RPC, validates required fields)
 team locked         → submission frozen
 ```
 
 Cron auto-locks any team past the deadline (whether submitted or not — draft becomes the final entry).
+
+Legacy `/invite/[token]` magic-link flow is still wired up for any pre-existing token-based invites but is no longer the default; the UI uses manual email add.
 
 ### Submission editor
 
@@ -104,7 +112,17 @@ Single page (`/submission`) with all fields. Two buttons:
 - **Salvar rascunho** — persists every change with no required-field enforcement.
 - **Submeter projeto** — leader-only. Confirms with the user, validates required fields, calls `submit_team`.
 
-The cover image lives in the public Supabase Storage bucket `project-images/{team_id}/{filename}`.
+Required deliverables match the regulamento:
+
+1. **Repositório Git** (private repos: the helper text instructs leaders to add `@kauenet` as collaborator so judges have access)
+2. **Vídeo de apresentação (demo)** — ≤ 3 min
+3. **Deck** — PDF/Notion/Slides with problema, solução, arquitetura, status, próximos passos
+
+The cover image lives in the public Supabase Storage bucket `project-images/{team_id}/{filename}` (recommended 250 × 250 px, displayed as a square thumbnail in cards).
+
+### Curator panel (`/admin`)
+
+Env-gated by `ADMIN_EMAIL_ALLOWLIST` / `ADMIN_USER_ID_ALLOWLIST`. Three-column grid of submission cards; clicking opens a native `<dialog>` modal with the project's full detail, member socials, and a per-admin rating form (0–10 grade + comment). Each admin's rating is independent; the modal also lists every other admin's grade and comment for cross-referencing. Filter for `Não avaliados` / `Avaliados` and a "Por avaliar" stat help triage the judging queue.
 
 ### Luma verification
 
@@ -143,7 +161,8 @@ Vercel — set the env vars, register the cron in `vercel.json` (already present
 
 These are pragmatically out of scope for the first event:
 
-- Admin dashboard with CSV export (env-gated `/admin`).
+- **CSV export** from the curator panel (the panel exists; only the export button is missing).
 - Realtime presence in the submission editor (Supabase Realtime channel).
+- Realtime updates of other admins' ratings as they're saved (today the panel revalidates on each save action).
 - Direct Luma API integration once we own the event.
 - Multi-hackathon support — schema already includes `hackathon_id` on teams, but the UI hardcodes `bh-onchain-2026`.

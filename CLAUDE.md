@@ -15,9 +15,12 @@ Next.js 16 App Router, TypeScript, Tailwind v4, Supabase. Submission flow for th
 - **Supabase clients:**
   - `createClient()` (browser) — user-scoped, RLS-enforced.
   - `createServerSupabaseClient()` (server) — same scoping, used in server components and route handlers.
-  - `createServiceRoleClient()` — bypasses RLS. Only for invite-token issuance, cron auto-lock, and reading invites for unauthenticated users on `/invite/[token]`.
-- **Cross-table mutations** go through `SECURITY DEFINER` RPCs with explicit `auth.uid()` checks: `create_team_with_leader`, `accept_team_invite`, `submit_team`. Single-table RLS handles everything else.
-- **Auto-rows via triggers:** inserting a team creates the submission row and the leader's `team_members` row. Inserting an `auth.users` row creates the mirror `users` row.
+  - `createServiceRoleClient()` — bypasses RLS. Used by admin server actions (gated by `requireAdmin()`), cross-team reads in `/admin`, cron auto-lock, the team-leader manual add-member action, and the unauthenticated `/invite/[token]` page.
+- **Cross-table mutations** route through one of two patterns:
+  1. `SECURITY DEFINER` RPCs with explicit `auth.uid()` checks — `create_team_with_leader`, `accept_team_invite`, `submit_team`. Used by member-facing flows.
+  2. Server actions that gate on `requireUser()` / `requireAdmin()` then write with `createServiceRoleClient()` — `addMemberByEmail`, `upsertRating`, `deleteRating`. Used when the gate lives in env (admin allowlist) or when the validation is simpler than the RPC overhead.
+  Single-table RLS handles everything else.
+- **Auto-rows via triggers:** inserting a team creates the submission row and the leader's `team_members` row. Inserting an `auth.users` row creates the mirror `users` row **and** auto-links any pending `team_members` ghost rows (`user_id is null`, matching `invited_email`) — see migration 00012.
 
 ## Conventions
 
@@ -31,6 +34,7 @@ Next.js 16 App Router, TypeScript, Tailwind v4, Supabase. Submission flow for th
 ## Gotchas
 
 - `create-next-app` fails in non-empty dirs. The project was scaffolded by hand (mirroring `superteam-maker`'s approach).
+- **The DB was repurposed from `supabase-solana-lms`**, which dropped the `ALTER DEFAULT PRIVILEGES` rows that normally auto-grant `anon`/`authenticated`/`service_role` on every new table. Migrations 00009/00010 restore them explicitly. If you ever fork to a fresh Supabase project, those two migrations become no-ops but should still run for parity. Symptom of missing grants: every PostgREST call 403s with "permission denied for table X" *before* RLS even runs.
 - Supabase Auth doesn't backfill the `users` mirror table for accounts that existed before the trigger was added. For a fresh project this won't bite, but if you re-apply migrations to a DB with pre-existing auth users:
   ```sql
   INSERT INTO public.users (id, email)
@@ -41,6 +45,9 @@ Next.js 16 App Router, TypeScript, Tailwind v4, Supabase. Submission flow for th
 - Image upload uses the public `project-images` bucket. RLS policy keys upload paths to `{team_id}/...`, so callers MUST prefix the team id (the `ImageUpload` component does this).
 - Luma "verification" is self-attestation (`users.luma_registered_at`). Cross-reference manually with a CSV export from the Luma organizer dashboard.
 - Cron endpoint at `/api/cron/lock-submissions` is bearer-auth'd via `CRON_SECRET`. Vercel sends `Authorization: Bearer <secret>` when configured.
+- **`submission_ratings` table** has RLS enabled but **no policies** — only `service_role` can touch it. All mutations route through the server actions in `src/app/(app)/admin/actions.ts`, which gate on `requireAdmin()`. Don't try to query it from the browser client; you'll silently get zero rows.
+- **Manual add-member flow** creates "ghost" `team_members` rows (`user_id is null`, `status='pending'`) when the email isn't registered yet. The `handle_new_user` trigger links them on signup. The legacy `/invite/[token]` page still works for any pre-existing token-based invites — kept for backward compat, no new tokens are generated.
+- **Form alignment with the regulamento:** the form has ONE required video field (`pitch_video_url`, labelled "Vídeo de apresentação (demo)"). The `demo_video_url` column still exists on the table for historical data but is no longer required by the form or by `submit_team` (migration 00013).
 
 ## Testing
 
