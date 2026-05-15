@@ -26,7 +26,7 @@ export default async function TeamPage() {
         <Card className="mx-auto max-w-xl p-8 text-center">
           <h1 className="font-heading text-2xl font-bold">Você não está em um time</h1>
           <p className="mt-2 text-bh-muted">
-            Crie um time como líder, ou aguarde o convite do líder no seu e-mail.
+            Crie um time como líder, ou peça ao líder para te adicionar pelo e-mail que você usa aqui.
           </p>
           <div className="mt-6">
             <Link href="/team/new">

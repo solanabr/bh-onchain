@@ -62,7 +62,7 @@ export function Header({
               <Link href={primaryHref} className={secondaryAction}>
                 Painel
               </Link>
-              <form action="/api/auth/signout" method="POST" className="hidden sm:block">
+              <form action="/api/auth/signout" method="POST">
                 <button type="submit" className={secondaryAction}>
                   Sair
                 </button>

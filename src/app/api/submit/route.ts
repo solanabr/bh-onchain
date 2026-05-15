@@ -15,6 +15,10 @@ const RPC_ERRORS: Record<string, { status: number; message: string }> = {
     status: 422,
     message: "Todos os integrantes precisam confirmar a inscrição no Luma antes de submeter.",
   },
+  members_missing_age: {
+    status: 422,
+    message: "Todos os integrantes precisam confirmar que têm 18 anos ou mais antes de submeter.",
+  },
 };
 
 export async function POST(request: NextRequest) {

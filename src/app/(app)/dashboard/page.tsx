@@ -61,8 +61,8 @@ function NoTeamPanel({ canCreate }: { canCreate: boolean }) {
     <Card className="p-8">
       <h2 className="font-heading text-xl font-semibold">Você ainda não está em um time</h2>
       <p className="mt-2 text-bh-muted">
-        Crie um time como líder ou aguarde um convite do seu líder por e-mail. Cada time pode
-        ter de 1 a 4 integrantes.
+        Crie um time como líder, ou peça ao líder do seu time para te adicionar pelo e-mail
+        que você usa aqui. Cada time pode ter de 1 a 4 integrantes.
       </p>
       <div className="mt-6 flex flex-wrap gap-3">
         {canCreate ? (

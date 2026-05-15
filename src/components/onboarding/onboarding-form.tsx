@@ -68,8 +68,8 @@ export function OnboardingForm({ email, initial }: Props) {
       twitter_url: sanitizeUrl(twitter),
       linkedin_url: sanitizeUrl(linkedin),
       telegram_handle: telegram.trim() || null,
-      luma_registered_at: now,
-      age_attestation_at: now,
+      luma_registered_at: initial?.luma_registered_at ?? now,
+      age_attestation_at: initial?.age_attestation_at ?? now,
     };
 
     const { error: upsertError } = await supabase

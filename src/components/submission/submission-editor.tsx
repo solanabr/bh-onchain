@@ -62,6 +62,8 @@ const SUBMIT_ERRORS: Record<string, string> = {
     "Preencha todos os campos obrigatórios (incluindo a imagem do projeto) antes de submeter.",
   members_missing_luma:
     "Todos os integrantes precisam confirmar a inscrição no Luma antes da submissão.",
+  members_missing_age:
+    "Todos os integrantes precisam confirmar que têm 18 anos ou mais antes da submissão.",
 };
 
 export function SubmissionEditor({ teamId, isLeader, editable, initial, initialImageUrl }: Props) {
@@ -238,9 +240,18 @@ export function SubmissionEditor({ teamId, isLeader, editable, initial, initialI
             currentPath={imagePath}
             currentUrl={imageUrl}
             disabled={!editable}
-            onUploaded={(path, url) => {
+            onUploaded={async (path, url) => {
               setImagePath(path);
               setImageUrl(url);
+              if (!editable) return;
+              const { error } = await supabase
+                .from("submissions")
+                .update({ image_path: path })
+                .eq("team_id", teamId);
+              if (!error) {
+                setSavedAt(new Date());
+                router.refresh();
+              }
             }}
           />
         </div>
