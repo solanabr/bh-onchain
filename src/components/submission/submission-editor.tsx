@@ -62,8 +62,6 @@ const SUBMIT_ERRORS: Record<string, string> = {
     "Preencha todos os campos obrigatórios (incluindo a imagem do projeto) antes de submeter.",
   members_missing_luma:
     "Todos os integrantes precisam confirmar a inscrição no Luma antes da submissão.",
-  members_missing_age:
-    "Todos os integrantes precisam confirmar que têm 18 anos ou mais antes da submissão.",
 };
 
 export function SubmissionEditor({ teamId, isLeader, editable, initial, initialImageUrl }: Props) {
