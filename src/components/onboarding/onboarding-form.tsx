@@ -184,7 +184,13 @@ export function OnboardingForm({ email, initial }: Props) {
         </p>
       )}
 
-      <Button type="submit" variant="primary" fullWidth disabled={loading} className="py-4">
+      <Button
+        type="submit"
+        variant="primary"
+        fullWidth
+        disabled={loading || !lumaConfirmed || !ageConfirmed || !fullName.trim()}
+        className="py-4"
+      >
         {loading ? "Salvando..." : "Salvar e continuar"}
       </Button>
     </form>
