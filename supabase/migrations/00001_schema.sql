@@ -66,8 +66,8 @@ insert into hackathons (
   luma_url, metadata
 ) values (
   'bh-onchain-2026',
-  'Hackathon BH Onchain — Trilha Solana SuperTeam',
-  'Hackathon de 5 dias com curadoria da Solana SuperTeam. Construa em Solana, dispute USD 3.000 em prêmios.',
+  'Hackathon BH Onchain — Trilha Solana Superteam',
+  'Hackathon de 5 dias com curadoria da Solana Superteam. Construa em Solana, dispute USD 3.000 em prêmios.',
   '2026-05-13 12:00:00-03',
   '2026-05-16 23:59:59-03',
   '2026-05-17 14:00:00-03',

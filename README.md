@@ -1,6 +1,6 @@
 # BH Onchain Hackathon — Submission Platform
 
-Submission platform for the **Hackathon BH Onchain · Trilha Solana SuperTeam** (Belo Horizonte, 13–17 May 2026). Hackers sign in, build a team, and submit their project. Edits stay open until the deadline; a cron locks every team after.
+Submission platform for the **Hackathon BH Onchain · Trilha Solana Superteam** (Belo Horizonte, 13–17 May 2026). Hackers sign in, build a team, and submit their project. Edits stay open until the deadline; a cron locks every team after.
 
 Co-organized by [BH Onchain](https://bhonchain.com) and curated by [Solana Superteam BR](https://br.superteam.fun). Inspired by the existing [`superteam-maker`](../superteam-maker) codebase.
 

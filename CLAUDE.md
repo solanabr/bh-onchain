@@ -1,6 +1,6 @@
 # BH Onchain Hackathon — Submission Platform
 
-Next.js 16 App Router, TypeScript, Tailwind v4, Supabase. Submission flow for the Hackathon BH Onchain (Solana SuperTeam track, May 2026).
+Next.js 16 App Router, TypeScript, Tailwind v4, Supabase. Submission flow for the Hackathon BH Onchain (Solana Superteam track, May 2026).
 
 ## Quick reference
 
